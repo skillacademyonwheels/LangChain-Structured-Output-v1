@@ -1,4 +1,4 @@
-from langchain_huggingface import HuggingFacePipeline,ChatHuggingFace
+from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from typing import TypedDict, Annotated, Optional, Literal
 import os
@@ -7,14 +7,12 @@ import streamlit as st
 
 load_dotenv()
 
-os.environ["HF_DATASETS_OFFLINE"] = "1"
-os.environ["HF_METRICS_OFFLINE"] = "1"
-os.environ["HF_HUB_OFFLINE"] = "1"
-os.environ['HF_HOME'] = './hf_cache'
+# os.environ["HF_DATASETS_OFFLINE"] = "1"
+# os.environ["HF_METRICS_OFFLINE"] = "1"
+# os.environ["HF_HUB_OFFLINE"] = "1"
+# os.environ['HF_HOME'] = './hf_cache'
 
-llm = HuggingFacePipeline.from_model_id("TinyLlama/TinyLlama-1.1B-Chat-v1.0", task="text-generation", pipeline_kwargs={"temperature": 0.7, "max_new_tokens": 2048})
-
-model = ChatHuggingFace(llm=llm)
+model = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7)
 
 st.title("Structured Output with TypedDict")
 
@@ -52,10 +50,17 @@ if st.button("Generate Structured Output"):
     if result is None:
         st.error("The model did not return a structured output. Try again or check the model.")
     else:
-        st.write(result['name'])
-        st.write(result['key_themes'])
-        st.write(result['summary'])
-        st.write(result['sentiment'])
-        st.write(result['pros'])
-        st.write(result['cons'])
+        missing_fields = [
+            field for field in ["name", "key_themes", "summary", "sentiment", "pros", "cons"]
+            if field not in result
+        ]
+        if missing_fields:
+            st.warning(f"Partial structured output received. Missing fields: {', '.join(missing_fields)}")
+
+        st.write("Name of the Author:", result.get("name", "N/A"))
+        st.write("Key Themes:", result.get("key_themes", []))
+        st.write("Summary:", result.get("summary", "N/A"))
+        st.write("Sentiment:", result.get("sentiment", "N/A"))
+        st.write("Pros:", result.get("pros", []))
+        st.write("Cons:", result.get("cons", []))
 

@@ -35,6 +35,8 @@ sentence-transformers
 ## Streamlit for building interactive applications
 streamlit
 
+## For using Langchan-GROQ
+langchain-groq
 
 # Model ID	Size	RAM Needed
 # TinyLlama/TinyLlama-1.1B-Chat-v1.0	1.1B	~2 GB
